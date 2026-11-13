@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홍길동 & 김우주 결혼합니다</title>
+    <!-- Leaflet CSS (무료 지도용) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        body {
+            background-color: #f7f5f2;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 메인 커버 사진 섹션 */
+        .main-cover {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            overflow: hidden;
+        }
+
+        .main-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .main-title-overlay {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+
+        .main-title-overlay h1 {
+            font-family: 'Nanum Myeongjo', serif;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        .main-title-overlay p {
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+
+        /* 인사말 섹션 */
+        .greeting {
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .greeting h2 {
+            font-family: 'Nanum Myeongjo', serif;
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .greeting p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .couple-names {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #222;
+        }
+
+        .couple-names span {
+            font-size: 0.9rem;
+            color: #888;
+            margin: 0 5px;
+        }
+
+        /* 연락처 버튼 */
+        .contact-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-call {
+            padding: 10px 20px;
+            background: #f0eae1;
+            color: #333;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn-call:hover {
+            background: #e2d7c7;
+        }
+
+        /* 웨딩 갤러리 */
+        .gallery {
+            padding: 30px 20px;
+            background: #faf8f5;
+            text-align: center;
+        }
+
+        .section-title {
+            font-family: 'Nanum Myeongjo', serif;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .gallery-item {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item img:hover {
+            transform: scale(1.05);
+        }
+
+        /* 예식 일시 및 장소 */
+        .event-info {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .date-box {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .location-box {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        /* 지도 영역 (Leaflet) */
+        #map {
+            width: 100%;
+            height: 250px;
+            border-radius: 8px;
+            margin-top: 15px;
+            z-index: 1;
+        }
+
+        /* 마음 전하기 (계좌번호) */
+        .account-section {
+            padding: 40px 20px;
+            background: #faf8f5;
+            text-align: center;
+        }
+
+        .account-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .account-info h4 {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .account-info p {
+            font-size: 0.95rem;
+            color: #222;
+            font-weight: 500;
+        }
+
+        .btn-copy {
+            padding: 6px 12px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .btn-copy:active {
+            background: #555;
+        }
+
+        /* 푸터 */
+        footer {
+            padding: 30px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #aaa;
+            background: #f7f5f2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 메인 커버 이미지 -->
+        <div class="main-cover">
+            <!-- 첫 번째 첨부 이미지 사용 -->
+            <img src="main.jpg" alt="웨딩 메인 사진">
+            <div class="main-title-overlay">
+                <p>WEDDING INVITATION</p>
+                <h1>홍길동 &middot; 김우주</h1>
+                <p>2027년 10월 9일 오후 12시</p>
+                <p>서울신라호텔</p>
+            </div>
+        </div>
+
+        <!-- 인사말 -->
+        <div class="greeting">
+            <h2>초대의 글</h2>
+            <p>
+                서로가 마주보며 다져온 사랑을<br>
+                이제 함께 하나의 곳을 바라보며 걸어가고자 합니다.<br>
+                귀한 걸음 하셔서 두 사람의 앞날을<br>
+                축복해 주시면 감사하겠습니다.
+            </p>
+            <div class="couple-names">
+                홍길동 <span>의 장남</span> 신랑 홍길동<br>
+                김우주 <span>의 장녀</span> 신부 김우주
+            </div>
+            
+            <div class="contact-section">
+                <a href="tel:000-0000-0000" class="btn-call">신랑에게 연락하기</a>
+                <a href="tel:000-0000-0000" class="btn-call">신부에게 연락하기</a>
+            </div>
+        </div>
+
+        <!-- 웨딩 갤러리 -->
+        <div class="gallery">
+            <h3 class="section-title">OUR GALLERY</h3>
+            <div class="gallery-grid">
+                <div class="gallery-item"><img src="wddding5.jpg" alt="웨딩사진1"></div>
+                <div class="gallery-item"><img src="wedding1.jpg" alt="웨딩사진2"></div>
+                <div class="gallery-item"><img src="wedding2.jpg" alt="웨딩사진3"></div>
+                <div class="gallery-item"><img src="wedding3.jpg" alt="웨딩사진4"></div>
+            </div>
+        </div>
+
+        <!-- 예식장소 및 지도 -->
+        <div class="event-info">
+            <h3 class="section-title">오시는 길</h3>
+            <div class="date-box">2027년 10월 9일(토) 낮 12시</div>
+            <div class="location-box">서울신라호텔 (서울 중구 동호로 249)</div>
+            
+            <!-- 무료 줌인 가능한 지도 (Leaflet + OpenStreetMap) -->
+            <div id="map"></div>
+        </div>
+
+        <!-- 마음 전하기 (계좌번호) -->
+        <div class="account-section">
+            <h3 class="section-title">마음 전하실 곳</h3>
+            
+            <div class="account-box">
+                <div class="account-info">
+                    <h4>신랑 측 계좌</h4>
+                    <p>농협 000-000-000-000 (예금주: 홍길동)</p>
+                </div>
+                <button class="btn-copy" onclick="copyAccount('농협 000000000000')">복사</button>
+            </div>
+
+            <div class="account-box">
+                <div class="account-info">
+                    <h4>신부 측 계좌</h4>
+                    <p>국민 000-000-000-000 (예금주: 김우주)</p>
+                </div>
+                <button class="btn-copy" onclick="copyAccount('국민 000000000000')">복사</button>
+            </div>
+        </div>
+
+        <!-- 푸터 -->
+        <footer>
+            <p>Copyright &copy; 2027 Gildong & Uju Wedding</p>
+        </footer>
+    </div>
+
+    <!-- Leaflet JS (무료 지도 라이브러리) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 서울신라호텔 위도, 경도 좌표
+        const shillaLat = 37.5562;
+        const shillaLng = 127.0055;
+
+        // 지도 초기화 (줌인/아웃, 드래그 가능)
+        const map = L.map('map').setView([shillaLat, shillaLng], 16);
+
+        // 무료 오픈스트리트맵 타일 적용
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // 마커 추가 및 팝업 설정
+        L.marker([shillaLat, shillaLng]).addTo(map)
+            .bindPopup('<b>서울신라호텔</b><br>오시는 것을 환영합니다.')
+            .openPopup();
+
+        // 계좌번호 복사 기능
+        function copyAccount(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('계좌번호가 복사되었습니다.');
+            }).catch(err => {
+                alert('복사에 실패했습니다.');
+            });
+        }
+    </script>
+</body>
+</html>
